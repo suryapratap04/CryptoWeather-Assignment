@@ -4,10 +4,15 @@
 import { useState } from "react";
 // import { fetchWeather } from "@/lib/api";
 import WeatherCard from "./WeatherCard";
+interface WeatherData {
+  name: string;
+  main: { temp: number; humidity: number };
+  weather: { description: string }[];
+}
 
 export default function WeatherSection() {
   const [city, setCity] = useState("");
-  const [weatherData, setWeatherData] = useState<any>(null);
+  const [weatherData, setWeatherData] = useState<WeatherData>();
 
   const handleCheckWeather = async () => {
     console.log("Checking weather for", city);
@@ -16,10 +21,9 @@ export default function WeatherSection() {
       // if (data) setWeatherData(data);
       // else alert("City not found!");
       setWeatherData({
-        city: "New York",
-        condition: "Cloudy",
-        temperature: 75,
-        humidity: 65,
+        name: "New York",
+        main: { temp: 75, humidity: 65 },
+        weather: [{ description: "Cloudy" }],
       });
     }
   };
