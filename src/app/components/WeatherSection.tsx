@@ -10,10 +10,17 @@ export default function WeatherSection() {
   const [weatherData, setWeatherData] = useState<any>(null);
 
   const handleCheckWeather = async () => {
+    console.log("Checking weather for", city);
     if (city.trim()) {
       // const data = await fetchWeather(city);
       // if (data) setWeatherData(data);
       // else alert("City not found!");
+      setWeatherData({
+        city: "New York",
+        condition: "Cloudy",
+        temperature: 75,
+        humidity: 65,
+      });
     }
   };
 

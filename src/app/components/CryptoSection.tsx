@@ -2,6 +2,14 @@
 // import { fetchCrypto } from "@/lib/api";
 import CryptoCard from "./CryptoCard";
 
+interface CryptoData {
+  id: string;
+  name: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  market_cap: number;
+}
+
 async function getCryptoData() {
   // const data = await fetchCrypto();
   // return data;
@@ -40,7 +48,7 @@ export default async function CryptoSection() {
           Dummy Image (300x192px)
         </div>
         <div className="space-y-4 md:space-y-6 w-full lg:w-2/3">
-          {cryptoData.map((crypto: any) => (
+          {cryptoData.map((crypto: CryptoData) => (
             <CryptoCard key={crypto.id} crypto={crypto} />
           ))}
         </div>

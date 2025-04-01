@@ -2,6 +2,11 @@
 // import { fetchNews } from "@/lib/api";
 import NewsCard from "./NewsCard";
 
+interface News {
+  title: string;
+  link: string;
+}
+
 async function getNewsData() {
   // const data = await fetchNews();
   // return data;
@@ -39,7 +44,7 @@ export default async function NewsSection() {
           Dummy Image (300x192px)
         </div>
         <div className="space-y-3 md:space-y-6 w-full lg:w-2/3">
-          {newsData.map((news: any, index: number) => (
+          {newsData.map((news: News, index: number) => (
             <NewsCard key={index} news={news} />
           ))}
         </div>
