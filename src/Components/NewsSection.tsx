@@ -1,54 +1,59 @@
-// components/NewsSection.tsx
-// import { fetchNews } from "@/lib/api";
-import NewsCard from "./NewsCard";
+"use client";
 
-interface News {
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface NewsArticle {
+  id: number;
   title: string;
-  link: string;
+  published_at: string;
+  url: string;
+  source: {
+    title: string;
+    domain: string;
+  };
 }
 
-async function getNewsData() {
-  // const data = await fetchNews();
-  // return data;
-  console.log("getNewsData");
-  return [
-    {
-      title: "Bitcoin hits $50,000 for first time since May",
-      link: "https://www.reuters.com/technology/bitcoin-hits-50000-first-time-since-may-2021-08-23/",
-    },
-    {
-      title: "Ethereum upgrade hits major milestone",
-      link: "https://www.coindesk.com/ethereum-london-hard-fork-major-milestone",
-    },
-    {
-      title: "El Salvador buys 150 more bitcoins",
-      link: "https://www.bbc.com/news/world-latin-america-58363145",
-    },
-  ];
-}
+const NewsSection = () => {
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const router = useRouter();
 
-export default async function NewsSection() {
-  const newsData = await getNewsData();
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await fetch("/api/news");
+        const data = await res.json();
+        setNews(data.results);
+      } catch (error) {
+        console.error("Error fetching news", error);
+      }
+    };
+  
+    fetchNews();
+  }, []);
+  
 
   return (
-    <section
-      id="news"
-      className="bg-[#1B2A41] p-6 sm:p-8 md:p-12 rounded-xl shadow-lg w-full h-screen flex flex-col items-center justify-evenly"
-    >
-      <p className="text-lg sm:text-xl md:text-4xl text-[#CCC9DC] mb-6 md:mb-8 max-w-3xl text-center mx-auto font-bold">
-        Catch the latest crypto headlines, from market surges to global
-        regulations.
-      </p>
-      <div className=" flex flex-col lg:flex-row gap-6 md:gap-8 max-w-4xl mx-auto w-full">
-        <div className="bg-[#CCC9DC] w-full lg:w-1/3 h-48 rounded-lg flex items-center justify-center text-[#000000] text-base md:text-lg">
-          Dummy Image (300x192px)
-        </div>
-        <div className="space-y-3 md:space-y-6 w-full lg:w-2/3">
-          {newsData.map((news: News, index: number) => (
-            <NewsCard key={index} news={news} />
-          ))}
-        </div>
+    <section className="bg-[#1B2A41] p-6 sm:p-8 md:p-12 rounded-xl shadow-lg w-full min-h-screen flex flex-col items-center justify-start">
+      <h2 className="text-[#CCC9DC] text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8">
+        Top Crypto Headlines
+      </h2>
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
+        {news.map((article) => (
+          <div
+            key={article.id}
+            onClick={() => router.push(`/news/${article.id}`)}
+            className="cursor-pointer bg-[#0C1821] text-white p-6 rounded-xl shadow-md hover:scale-[1.02] transition-transform"
+          >
+            <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+            <p className="text-sm text-gray-400">
+              {article.source.title} • {new Date(article.published_at).toLocaleString()}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );
-}
+};
+
+export default NewsSection;

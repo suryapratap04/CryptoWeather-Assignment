@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Card, CircularProgress, Typography } from "@mui/material";
 
@@ -43,7 +44,7 @@ const CryptoDetailPage = () => {
   const { id } = useParams();
   const [crypto, setCrypto] = useState<CryptoDetails | null>(null);
 
-  const fetchDetails = async () => {
+  const fetchDetails =  useCallback(async () => {
     try {
       const res = await axios.get(`https://api.coingecko.com/api/v3/coins/markets`, {
         params: {
@@ -55,11 +56,12 @@ const CryptoDetailPage = () => {
     } catch (error) {
       console.error("Failed to fetch crypto details", error);
     }
-  };
+  }, [id]);
+  
 
   useEffect(() => {
     fetchDetails();
-  }, [id]);
+  }, [fetchDetails]);
 
   if (!crypto) return <div className="bg-[#1B2A41] min-h-screen min-w-full text-white p-8">
     <Card sx={{ maxWidth: 400, margin: "auto", mt: 5, p: 4, textAlign: "center" }}>
