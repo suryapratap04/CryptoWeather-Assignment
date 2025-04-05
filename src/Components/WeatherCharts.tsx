@@ -5,36 +5,72 @@ import {
 import { Container, Grid, Paper, Typography } from "@mui/material";
 import Spinner from "./Spinner";
 
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // 🔁 Replace with your actual API key
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
-const WeatherCharts = ({ props: city }: { props: string }) => {
-  console.log("City Name:", city);
-  const [forecastData, setForecastData] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Interfaces
+interface ForecastMain {
+  temp: number;
+  feels_like: number;
+  temp_min: number;
+  temp_max: number;
+  pressure: number;
+  humidity: number;
+}
+
+interface ForecastClouds {
+  all: number;
+}
+
+interface ForecastWind {
+  speed: number;
+}
+
+interface ForecastItem {
+  dt_txt: string;
+  main: ForecastMain;
+  clouds: ForecastClouds;
+  wind: ForecastWind;
+  visibility: number;
+}
+
+interface ForecastResponse {
+  list: ForecastItem[];
+}
+
+interface WeatherChartsProps {
+  props: string;
+}
+
+const kelvinToCelsius = (k: number): number => +(k - 273.15).toFixed(2);
+
+const WeatherCharts: React.FC<WeatherChartsProps> = ({ props: city }) => {
+  const [forecastData, setForecastData] = useState<ForecastItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchForecast = async () => {
       setLoading(true);
       try {
-        console.log("Fetching forecast data for:", city);
-        console.log("apiKey", API_KEY);
-
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}`
         );
-        const data = await response.json();
-        setForecastData(data.list || []);
+        const data: ForecastResponse & { cod: string; message?: string } = await response.json();
+
+        if (data.cod !== "200") {
+          console.error("API error:", data.message);
+          setForecastData([]);
+        } else {
+          setForecastData(data.list || []);
+        }
       } catch (error) {
         console.error("Error fetching forecast data:", error);
-        setLoading(false);
+        setForecastData([]);
       } finally {
         setLoading(false);
       }
     };
 
-    if (city) {
-      fetchForecast();
-    }
+    if (city) fetchForecast();
   }, [city]);
 
   if (loading) return <Spinner />;
@@ -42,10 +78,10 @@ const WeatherCharts = ({ props: city }: { props: string }) => {
 
   const chartData = forecastData.map((item) => ({
     dt_txt: item.dt_txt,
-    feels_like: (item.main.feels_like - 273.15).toFixed(2),
-    temperature: (item.main.temp - 273.15).toFixed(2),
-    temp_min: (item.main.temp_min - 273.15).toFixed(2),
-    temp_max: (item.main.temp_max - 273.15).toFixed(2),
+    feels_like: kelvinToCelsius(item.main.feels_like),
+    temperature: kelvinToCelsius(item.main.temp),
+    temp_min: kelvinToCelsius(item.main.temp_min),
+    temp_max: kelvinToCelsius(item.main.temp_max),
     pressure: item.main.pressure,
     humidity: item.main.humidity,
     cloud: item.clouds.all,
@@ -53,7 +89,7 @@ const WeatherCharts = ({ props: city }: { props: string }) => {
     visibility: item.visibility / 100,
   }));
 
-  const renderChart = (title, dataKey, strokeColor) => (
+  const renderChart = (title: string, dataKey: string, strokeColor: string) => (
     <Grid item xs={12} key={dataKey}>
       <Paper elevation={3}>
         <Typography variant="h6" align="center" gutterBottom>{title}</Typography>
