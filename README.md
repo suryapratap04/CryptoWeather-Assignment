@@ -2,7 +2,7 @@
 
 A modern, multi-page, real-time dashboard that combines global **weather**, **cryptocurrency**, and **news** data — built using **Next.js 13+**, **Redux**, **Tailwind CSS**, and **WebSockets**.
 
-Live Demo 🔗: [https://crypto-weather-nexus.vercel.app](https://crypto-weather-nexus.vercel.app)
+Live Demo 🔗: [https://cryptoweathernexus.vercel.app/](https://cryptoweathernexus.vercel.app)
 
 ---
 
