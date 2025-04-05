@@ -32,12 +32,14 @@ const fetchNewsById = async (id: string): Promise<NewsPost | null> => {
   return post ?? null;
 };
 
+// Update the Props type to match Next.js expectations
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>; // params is a Promise in Next.js 15+
 };
 
 export default async function NewsDetailPage({ params }: Props) {
-  const { id } = params;
+  // Await the params Promise to get the id
+  const { id } = await params;
 
   if (!id || typeof id !== "string") {
     return <div className="text-white text-center p-12">Invalid news ID.</div>;
