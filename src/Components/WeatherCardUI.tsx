@@ -1,22 +1,57 @@
 import React, { useEffect, useState } from "react";
 import {
-  Card,
-  CardContent,
-  Typography,
-  CardMedia,
-  Grid,
-  Box,
-  CircularProgress,
+  Card, CardContent, Typography, CardMedia, Grid, Box, CircularProgress,
 } from "@mui/material";
 import moment from "moment";
+
+interface Weather {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+interface Main {
+  temp: number;
+  feels_like: number;
+  temp_min: number;
+  temp_max: number;
+  pressure: number;
+  humidity: number;
+  sea_level?: number;
+  grnd_level?: number;
+}
+
+interface Wind {
+  speed: number;
+  deg: number;
+  gust?: number;
+}
+
+interface Sys {
+  country: string;
+  sunrise: number;
+  sunset: number;
+}
+
+interface WeatherResponse {
+  name: string;
+  weather: Weather[];
+  main: Main;
+  wind: Wind;
+  sys: Sys;
+  visibility: number;
+  timezone: number;
+  dt: number;
+  cod: number;
+}
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 const kelvinToCelsius = (temp: number) => (temp - 273.15).toFixed(2);
 
 const WeatherCardUI = ({ props: city }: { props: string }) => {
-  console.log("City:", city);
-  const [weatherData, setWeatherData] = useState<any>(null);
+  const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +63,6 @@ const WeatherCardUI = ({ props: city }: { props: string }) => {
 
   const fetchWeather = async (cityName: string) => {
     if (!API_KEY) {
-      console.error("API key not found.");
       setError("API key missing.");
       return;
     }
@@ -40,16 +74,15 @@ const WeatherCardUI = ({ props: city }: { props: string }) => {
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API_KEY}`
       );
-      const data = await response.json();
+      const data: WeatherResponse = await response.json();
 
       if (data.cod !== 200) {
-        setError(data.message || "Error fetching weather");
+        setError("City not found or API error.");
         setWeatherData(null);
       } else {
         setWeatherData(data);
       }
     } catch (err) {
-      console.error(err);
       setError("Failed to fetch weather data.");
     } finally {
       setLoading(false);
@@ -77,7 +110,7 @@ const WeatherCardUI = ({ props: city }: { props: string }) => {
     );
   }
 
-  if (!weatherData) return null;
+  if (!weatherData || weatherData.weather.length === 0) return null;
 
   const { name, weather, main, wind, sys } = weatherData;
   const weatherIcon = `http://openweathermap.org/img/wn/${weather[0].icon}.png`;
@@ -85,64 +118,27 @@ const WeatherCardUI = ({ props: city }: { props: string }) => {
   return (
     <Card sx={{ maxWidth: 400, margin: "auto", mt: 5 }}>
       <CardContent>
-        <Typography variant="h5" component="div">
-          {name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {sys.country}
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            mt: 2,
-          }}
-        >
-          <CardMedia
-            component="img"
-            sx={{ width: 100 }}
-            image={weatherIcon}
-            alt={weather[0].main}
-          />
+        <Typography variant="h5">{name}</Typography>
+        <Typography variant="body2" color="text.secondary">{sys.country}</Typography>
+
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
+          <CardMedia component="img" sx={{ width: 100 }} image={weatherIcon} alt={weather[0].main} />
           <Box sx={{ ml: 2 }}>
             <Typography variant="h6">{weather[0].main}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {weather[0].description}
-            </Typography>
+            <Typography variant="body2" color="text.secondary">{weather[0].description}</Typography>
           </Box>
         </Box>
-        <Typography variant="h4" component="div" sx={{ mt: 2 }}>
-          {kelvinToCelsius(main.temp)}°C
-        </Typography>
+
+        <Typography variant="h4" sx={{ mt: 2 }}>{kelvinToCelsius(main.temp)}°C</Typography>
+
         <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid item xs={6}>
-            <Typography variant="body2" color="text.secondary">
-              Feels like: {kelvinToCelsius(main.feels_like)}°C
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="body2" color="text.secondary">
-              Humidity: {main.humidity}%
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="body2" color="text.secondary">
-              Wind: {wind.speed} m/s
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="body2" color="text.secondary">
-              Pressure: {main.pressure} hPa
-            </Typography>
-          </Grid>
+          <Grid item xs={6}><Typography variant="body2">Feels like: {kelvinToCelsius(main.feels_like)}°C</Typography></Grid>
+          <Grid item xs={6}><Typography variant="body2">Humidity: {main.humidity}%</Typography></Grid>
+          <Grid item xs={6}><Typography variant="body2">Wind: {wind.speed} m/s</Typography></Grid>
+          <Grid item xs={6}><Typography variant="body2">Pressure: {main.pressure} hPa</Typography></Grid>
           <Grid item xs={12}>
-            <Typography variant="body2" color="text.secondary">
-              Sunrise: {moment.unix(sys.sunrise).format("hh:mm A")}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Sunset: {moment.unix(sys.sunset).format("hh:mm A")}
-            </Typography>
+            <Typography variant="body2">Sunrise: {moment.unix(sys.sunrise).format("hh:mm A")}</Typography>
+            <Typography variant="body2">Sunset: {moment.unix(sys.sunset).format("hh:mm A")}</Typography>
           </Grid>
         </Grid>
       </CardContent>
