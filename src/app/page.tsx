@@ -1,8 +1,8 @@
 // app/page.tsx
-import WeatherSection from "./components/WeatherSection";
-import CryptoSection from "./components/CryptoSection";
-import NewsSection from "./components/NewsSection";
-import MainSection from "./components/MainSection";
+import WeatherSection from "../Components/WeatherSection";
+import CryptoSection from "../Components/CryptoSection";
+import NewsSection from "../Components/NewsSection";
+import MainSection from "../Components/MainSection";
 
 
 export default function Dashboard() {

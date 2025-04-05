@@ -11,7 +11,6 @@ export default function MainSection() {
     if (section) {
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    // Optional: Update URL hash without full navigation
     router.push(`#${sectionId}`, { scroll: false });
   };
 
