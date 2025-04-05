@@ -84,6 +84,7 @@ const WeatherCardUI = ({ props: city }: { props: string }) => {
       }
     } catch (err) {
       setError("Failed to fetch weather data.");
+      console.log("Error fetching weather data:", err);
     } finally {
       setLoading(false);
     }
